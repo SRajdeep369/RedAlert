@@ -1,9 +1,10 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, jsonify
 from flask import request
 from flask import render_template
 import sqlite3
 import datetime
 import hashlib
+import json
 
 
 
@@ -69,8 +70,19 @@ def queueCMD():
     cur = con.cursor()
     cur.execute("""select * from cmdList""")
     rows = cur.fetchall(); 
+    print(len(rows))
+    lis=[]
+    print(lis)
+    for i in range(0,len(rows)) :
+        lis.append(list(rows[i]))
+
+    for i in range(0,len(lis)) :
+        lis[i][5]=lis[i][5].replace("\\\\","\\").replace("\\r","").replace("\\n","<br/>")
+        # print(lis[i][5])
+
+    # print(lis)
     con.close()
-    return render_template('commands.html',rows=rows)
+    return render_template('commands.html',rows=lis)
 
 @app.route('/alerts')
 def getAlerts():
@@ -103,7 +115,51 @@ def addSer():
 
 @app.route('/simulate')
 def atkSimulation():
-    return render_template('simulate.html')
+    con = sqlite3.connect('RedAlert.db')
+    cur = con.cursor()
+    cur.execute("""select * from aptGrp""")
+    rows = cur.fetchall(); 
+    con.close()
+    print(rows[0][0])
+    return render_template('simulate.html',rows=rows)
+
+
+@app.route('/addSim',methods=["POST"])
+def addSim():
+    if request.method == 'POST':
+        print(request.form)
+        con = sqlite3.connect('RedAlert.db')
+        cur = con.cursor()
+        cur.execute("""INSERT INTO aptGrp VALUES (?,?,?,?,?)""",(str(request.form['grpName']),hashlib.md5((str(request.form['grpName'])+str(datetime.datetime.now())).encode()).hexdigest(),str(request.form['ttpLST']),str(request.form['Status']),str(request.form['grpdesc'])))
+        con.commit()
+        con.close()
+
+    return redirect(url_for('atkSimulation'))
+
+
+@app.route('/getCommands',methods=['GET','POST'])
+def getCmds():
+    if request.method == 'GET':
+        hst = request.args.get('hostname')
+        con = sqlite3.connect('RedAlert.db')
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        rows = cur.execute("SELECT * from cmdList where hostname="+"'"+str(hst)+"' and status='pending'").fetchall()
+        con.commit()
+        con.close()
+        return json.dumps( [dict(ix) for ix in rows] )
+    if request.method == 'POST':
+        print("Hellooooo")
+        for cid,resp in request.json.items():
+            # print(str(cid)+" : "+resp)
+            con = sqlite3.connect('RedAlert.db')
+            con.row_factory = sqlite3.Row
+            cur = con.cursor()
+            rows = cur.execute("update cmdList set status='Complete', result='"+resp+"',completion_time='"+str(datetime.datetime.now())+"' where cmdID='"+cid+"'")
+            con.commit()
+            con.close()
+            print("----------------------------")
+        return "Success"
 
 if __name__ == '__main__':
     app.run()
