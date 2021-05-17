@@ -6,25 +6,35 @@ import datetime
 import hashlib
 import json
 
-
-
 app = Flask(__name__)
-
 
 @app.route('/')
 def dashboard():
     return render_template('index.html')
+
 
 @app.route('/ioc')
 def iocPage():
     print("testttt")
     con = sqlite3.connect('RedAlert.db')
     cur = con.cursor()
-    cur.execute("""select * from alertMon""")
+    cur.execute("""select * from openIOC""")
     rows = cur.fetchall(); 
     con.close()
     print(rows[0][0])
     return render_template('ioc.html',rows=rows)
+
+@app.route('/sendAlerts',methods=["POST"])
+def sendAlerts():
+    content = request.json
+    print(content["data"])
+    for contents in content["data"]:
+        con = sqlite3.connect('RedAlert.db')
+        cur = con.cursor()
+        cur.execute("INSERT INTO alertDB VALUES(?,?,?,?,?,?)",(contents[0],contents[1],contents[2],contents[3],contents[4],contents[5]))
+        con.commit()
+        con.close()
+    return jsonify({"status":True})
 
 @app.route('/delIOC',methods=['get'])
 def delIOC():
@@ -32,11 +42,10 @@ def delIOC():
     id = "'"+id+"'"
     con = sqlite3.connect('RedAlert.db')
     cur = con.cursor()
-    cur.execute("delete from alertMon where iocID="+str(id))
+    cur.execute("delete from openIOC where iocID="+str(id))
     con.commit()
     con.close()
     return redirect(url_for('iocPage'))
-
 
 @app.route('/addIOC',methods=['POST'])
 def addIOC():
@@ -45,7 +54,13 @@ def addIOC():
         print(request.form)
         con = sqlite3.connect('RedAlert.db')
         cur = con.cursor()
-        cur.execute("""INSERT INTO alertMon VALUES (?,?,?,?,?,?,?)""",(str(request.form['iocName']),str(request.form['iocType']),str(datetime.datetime.now()),str(request.form['mitreTTP']),str(request.form['iocCon']),str(request.form['iocStatus']),hashlib.md5((str(request.form['iocName'])+str(datetime.datetime.now())).encode()).hexdigest()))
+        cur.execute("""INSERT INTO openIOC VALUES (?,?,?,?,?,?,?)""",(str(request.form['iocName']),
+                                                                        str(request.form['iocType']),
+                                                                        str(datetime.datetime.now()),
+                                                                        str(request.form['mitreTTP']),
+                                                                        str(request.form['iocCon']),
+                                                                        str(request.form['iocStatus']),
+                                                                        hashlib.md5((str(request.form['iocName'])+str(datetime.datetime.now())).encode()).hexdigest()))
         con.commit()
         con.close()
 
@@ -86,7 +101,29 @@ def queueCMD():
 
 @app.route('/alerts')
 def getAlerts():
-    return render_template('alerts.html')
+    con = sqlite3.connect('RedAlert.db')
+    cur = con.cursor()
+    cur.execute("""select * from alertDB""")
+    rows = cur.fetchall(); 
+    con.close()
+    response=[]
+    print(type(rows))
+    for item in rows:
+        temp=[]
+        temp.append(item[0])
+        temp.append(item[1])
+        temp.append(item[2])
+        temp.append(item[3])
+        temp.append(item[4][1:-1].replace("'","").split(","))
+        temp.append(item[5])
+
+    # print(temp)
+        
+        response.append(temp)
+
+    # print(response[0])
+
+    return render_template('alerts.html',rows=response)
     
 @app.route('/iocFinder')
 def findIOCs():
@@ -98,7 +135,6 @@ def findIOCs():
     con.close()
     print(rows)
     return render_template('iocfinder.html',rows=rows)
-
     
 @app.route('/addSearch',methods=["POST"])
 def addSer():
@@ -123,7 +159,6 @@ def atkSimulation():
     print(rows[0][0])
     return render_template('simulate.html',rows=rows)
 
-
 @app.route('/addSim',methods=["POST"])
 def addSim():
     if request.method == 'POST':
@@ -135,7 +170,6 @@ def addSim():
         con.close()
 
     return redirect(url_for('atkSimulation'))
-
 
 @app.route('/getCommands',methods=['GET','POST'])
 def getCmds():
