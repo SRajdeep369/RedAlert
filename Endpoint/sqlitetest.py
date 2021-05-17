@@ -14,8 +14,11 @@ cur = con.cursor()
 # cur.execute('''CREATE TABLE evt16_sysmonConfigChange(UtcTime,Configuration,ConfigurationFileHash)''')
 
 # cur.execute('''CREATE TABLE evt22_dnsLookup(RuleName,UtcTime,ProcessGuid,ProcessId,QueryName,QueryStatus,QueryResults,Image)''')
-# cur.execute('''CREATE TABLE alertMon(iocName,iocType,iocDate,iocMitre,iocConditions,Status)''')
-cur.execute('''CREATE TABLE cmdList(hostname,request_time,status,completion_time,result,cmdID)''')
+# cur.execute('''CREATE TABLE evt11_fileEvent(RuleName,UtcTime,ProcessGuid,ProcessId,imageName,fileName,fileTime)''')
+# cur.execute('''CREATE TABLE alertDB(hostname,alert_id,alert_time,alert_details)''')
+cur.execute('''CREATE TABLE tConfig(key,value)''')
+# cur.execute('''CREATE TABLE openIOC(iocName,iocType,iocDate,iocMitre,iocConditions,status,iocID)''')
+# cur.execute('''CREATE TABLE cmdList(hostname,request_time,status,completion_time,result,cmdID)''')
 
 # Insert a row of data
 # cur.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
