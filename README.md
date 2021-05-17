@@ -14,9 +14,16 @@ https://github.com/redcanaryco/atomic-red-team
 https://lolbas-project.github.io/
 
 #Databases containing the scripts are not updated on Git Repo
+update: dummp database added
+
 #Possible delayed updates to source
 #Not the best code one can find
 #Most options under development
+
+Update1:
+Real time log reader code updated
+Real time event monitor code updated
+Realtime alert forwarder to Server updated
 
 Screenshots
 
@@ -24,4 +31,6 @@ Screenshots
 ![image](https://user-images.githubusercontent.com/21087794/113002348-4e9a0680-918f-11eb-8fcc-1a44c76ae8bb.png)
 ![image](https://user-images.githubusercontent.com/21087794/113003090-04fdeb80-9190-11eb-8cdb-e7d54bd43937.png)
 ![image](https://user-images.githubusercontent.com/21087794/113003242-28c13180-9190-11eb-8c57-97c9eea91553.png)
+![image](https://user-images.githubusercontent.com/21087794/118486375-25c9d280-b737-11eb-91be-81a448c78ffb.png)
+
 
