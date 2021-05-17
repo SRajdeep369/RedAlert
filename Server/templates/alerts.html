@@ -53,6 +53,112 @@ body {
   .sidenav {padding-top: 15px;}
   .sidenav a {font-size: 18px;}
 }
+* {box-sizing: border-box;}
+
+/* Button used to open the contact form - fixed at the bottom of the page */
+.open-button {
+  background-color: rgb(243, 23, 23);
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 23px;
+  right: 28px;
+  width: 280px;
+}
+
+
+.side-button {
+  background-color: rgb(243, 23, 23);
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  right: 28px;
+  width: 280px;
+}
+
+/* The popup form - hidden by default */
+.form-popup {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  right: 15px;
+  border: 3px solid #f1f1f1;
+  z-index: 9;
+}
+
+
+/* Add styles to the form container */
+.form-container {
+  max-width: 300px;
+  padding: 10px;
+  background-color: white;
+}
+
+/* Full-width input fields */
+.form-container input[type=text], .form-container input[type=password], .form-container textarea[type=text], .form-container select[type=text]{
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 12px 0;
+  border: none;
+  background: #f1f1f1;
+}
+
+/* When the inputs get focus, do something */
+.form-container input[type=text]:focus, .form-container input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Set a style for the submit/login button */
+.form-container .btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom:10px;
+  opacity: 0.8;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background-color: red;
+}
+
+/* Add some hover effects to buttons */
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}
+
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+}
 </style>
 </head>
 <body>
@@ -68,11 +174,64 @@ body {
 </div>
 
 <div id="main">
-    <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; RedAlerts</span>
-  <h2>Dashboard Comes Here</h2>
-  <p>Some dashboard Code</p>
+    <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Open IOCs</span>
+</div>
+
+{% for row in rows %}
+<button class="collapsible"><Name Here>{{row[1]}} | {{row[3]}} | {{row[5]}}</button>
+<div class="content">
+  <p><b>Alert ID:</b> {{row[2]}}</p>
+  <p><b>UTC Time:</b> {{row[4][1]}} </p>
+  <p><b>Process ID:</b> {{row[4][3]}} </p>
+  <p><b>Process Path:</b> {{row[4][4]}} </p>
+  <p><b>Process Name:</b> {{row[4][9]}} </p>
+  <p><b>Process md5:</b> {{row[4][17]}} </p>
+  <p><b>Process Command Line:</b> {{row[4][10]}} </p>
+  <p><b>Parent Process ID:</b> {{row[4][19]}} </p>
+  <p><b>Parent Process Path:</b> {{row[4][20]}} </p>
+  <p><b>Parent Process Command Line:</b> {{row[4][21]}} </p>
+  <p><b>Process Username:</b> {{row[4][12]}} </p>
+  <!-- {% for item in row[3] %}
+    {{item}}
+  {% endfor %} -->
+  <!-- <a href="http://localhost:5000/delIOC?tod={{row[6]}}"> -->
+  <!-- <button class="side-button" type=submit>Delete Indicator</button> -->
+</a>
   
 </div>
+
+
+<br>
+{% endfor %}
+
+
+<script>
+  var coll = document.getElementsByClassName("collapsible");
+  var i;
+  
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.maxHeight){
+        content.style.maxHeight = null;
+      } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+      } 
+    });
+  }
+  </script>
+
+<script>
+function openForm() {
+  document.getElementById("myForm").style.display = "block";
+}
+
+function closeForm() {
+  document.getElementById("myForm").style.display = "none";
+}
+</script>
+
 
 <script>
 function openNav() {
